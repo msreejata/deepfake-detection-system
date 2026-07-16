@@ -1,4 +1,5 @@
-# deepfake-detection-system
+# deepfake-detection-system EDITED
+
 # 🛡️ Deepfake Detection System
 
 A web-based Deepfake Detection System that uses a fine-tuned EfficientNet-B4 deep learning model to classify uploaded facial images as **Real** or **Fake**. The application consists of a React (Vite) frontend and a FastAPI backend that performs inference using a PyTorch model.
