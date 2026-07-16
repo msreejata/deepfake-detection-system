@@ -368,7 +368,7 @@ You can add screenshots of:
 
 - **Prabrisha Sarkar**
 - **MD Shahid**
-- **Sreejata** *(if applicable)*
+- **Sreejata**
 
 ---
 
