@@ -1,44 +1,52 @@
-# deepfake-detection-system EDITED
-
 # 🛡️ Deepfake Detection System
 
-A web-based Deepfake Detection System that uses a fine-tuned EfficientNet-B4 deep learning model to classify uploaded facial images as **Real** or **Fake**. The application consists of a React (Vite) frontend and a FastAPI backend that performs inference using a PyTorch model.
+A face-swap deepfake detection system built as a B.Tech final year project (Computer Science & Business Systems, Netaji Subhash Engineering College, MAKAUT). The system benchmarks three deep learning architectures on a custom 19,990-image dataset derived from DF40 and FaceForensics++, and deploys the best-performing model (EfficientNet-B4) as a live web application.
+
+**Live App:** https://deepfake-detection-system-peach.vercel.app/
+**Repository:** https://github.com/msreejata/deepfake-detection-system
 
 ---
 
 ## 📌 Features
 
-- Upload an image for deepfake detection
-- AI-powered prediction using EfficientNet-B4
-- Displays prediction label (Real/Fake)
-- Shows confidence score
-- Fast inference using PyTorch
+- Upload a facial image and receive a Real/Fake prediction with a confidence score
+- Inference powered by a fine-tuned EfficientNet-B4 model (PyTorch)
 - REST API built with FastAPI
 - Responsive React frontend
-- CORS-enabled backend for seamless frontend communication
+- CORS-enabled backend for cross-origin frontend communication
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- React.js
-- Vite
-- JavaScript
-- CSS
+- React + TypeScript
+- Vite (build tool/dev server)
+- Deployed on Vercel
 
 ### Backend
-- FastAPI
-- Uvicorn
-- PyTorch
-- Torchvision
-- timm
-- Pillow
+- FastAPI (Python)
+- Uvicorn (ASGI server)
+- python-multipart (form/file upload handling)
+- Deployed on Render
 
-### Deep Learning
-- EfficientNet-B4
-- Transfer Learning
-- Image Classification
+### Machine Learning / Inference
+- PyTorch
+- `timm` (EfficientNet-B4 architecture)
+- Pillow (image preprocessing)
+- Input resolution: 380×380
+- Normalization: ImageNet stats (mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])
+
+### Model Training & Benchmarking (research pipeline, run on Kaggle GPU notebooks)
+- **EfficientNet-B4** — PyTorch + `timm`, AdamW optimizer, CosineAnnealingLR scheduler, Cross-Entropy loss, staged fine-tuning (freeze → unfreeze)
+- **Xception** — PyTorch + `timm`, Adam optimizer, Binary Cross-Entropy loss
+- **CLIP (ViT-L/14)** — `open_clip_torch`, linear probe: frozen backbone feature extraction + scikit-learn `LogisticRegression` classifier head
+- pandas (manifest-driven dataset pipeline), scikit-learn (metrics, CLIP classifier)
+
+### Dataset
+- 19,990 images: 10,000 real (FaceForensics++) + 9,990 fake (DF40, 9 face-swap methods: FSGAN, FaceSwap, SimSwap, InSwapper, BlendFace, UniFace, MobileFaceSwap, e4s, FaceDancer)
+- Video-level 60/10/30 train/val/test split to prevent identity leakage
+- `manifest.csv`-driven pipeline (filepath, label, method, video_id, split)
 
 ---
 
@@ -51,13 +59,12 @@ DeepFake-Detection-Model/
 │   ├── src/
 │   ├── public/
 │   ├── package.json
-│   ├── vite.config.js
+│   ├── vite.config.ts
 │   └── .env
 │
 ├── backend/
 │   ├── model/
 │   │   └── best_efficientnet_b4.pth
-│   │
 │   ├── main.py
 │   ├── requirements.txt
 │   └── ...
@@ -68,324 +75,83 @@ DeepFake-Detection-Model/
 
 ---
 
-# ⚙️ Installation
+## ⚙️ Local Setup
 
-## 1. Clone the repository
-
+### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/DeepFake-Detection-System.git
-
-cd DeepFake-Detection-System
+git clone https://github.com/msreejata/deepfake-detection-system.git
+cd deepfake-detection-system/DeepFake-Detection-Model-main
 ```
 
----
-
-# 🖥️ Backend Setup
-
-Navigate to the backend folder.
-
+### 2. Backend setup
 ```bash
 cd backend
-```
-
-Create a virtual environment (recommended).
-
-### Windows
-
-```bash
 python -m venv venv
+
+# Windows
 venv\Scripts\activate
-```
-
-### Linux/macOS
-
-```bash
-python3 -m venv venv
+# Linux/macOS
 source venv/bin/activate
-```
 
-Install dependencies.
-
-```bash
 pip install -r requirements.txt
 ```
+Ensure the trained model weights are present at `backend/model/best_efficientnet_b4.pth`.
 
-Make sure the trained model is placed here:
-
-```
-backend/
-└── model/
-    └── best_efficientnet_b4.pth
-```
-
-Run the FastAPI server.
-
+Run the server:
 ```bash
 uvicorn main:app --reload
 ```
+Backend runs at `http://127.0.0.1:8000` (Swagger docs at `/docs`).
 
-The backend will start on
-
-```
-http://127.0.0.1:8000
-```
-
-Swagger API documentation:
-
-```
-http://127.0.0.1:8000/docs
-```
-
----
-
-# 🌐 Frontend Setup
-
-Open another terminal.
-
+### 3. Frontend setup
 ```bash
 cd frontend
-```
-
-Install dependencies.
-
-```bash
 npm install
 ```
-
-Create a `.env` file.
-
+Create a `.env` file:
 ```
 VITE_API_URL=http://127.0.0.1:8000
 ```
-
-Run the development server.
-
+Run the dev server:
 ```bash
 npm run dev
 ```
-
-The frontend will be available at
-
-```
-http://localhost:5173
-```
+Frontend runs at `http://localhost:5173`.
 
 ---
 
-# 📡 API Endpoints
+## 📡 API Reference
 
-## Health Check
-
-**GET /**
-
-Returns server status.
-
-### Response
-
+### `GET /`
+Health check.
 ```json
-{
-  "status": "ok"
-}
+{ "status": "ok" }
 ```
 
----
+### `POST /predict`
+Multipart form-data upload (`file`: image, JPG/JPEG/PNG supported).
 
-## Predict Image
-
-**POST /predict**
-
-### Request
-
-Multipart form-data
-
-```
-file : image
-```
-
-Supported formats include:
-
-- JPG
-- JPEG
-- PNG
-
-### Response
-
+**Response:**
 ```json
-{
-  "label": "fake",
-  "confidence": 0.9834
-}
+{ "label": "fake", "confidence": 0.9834 }
 ```
-
 or
-
 ```json
-{
-  "label": "real",
-  "confidence": 0.9472
-}
+{ "label": "real", "confidence": 0.9472 }
 ```
 
 ---
 
-# 🧠 Model Details
+## 🧪 Benchmarking Results
 
-Model Architecture:
+Three architectures were evaluated on a held-out test set of 5,997 images:
 
-- EfficientNet-B4
+| Metric | EfficientNet-B4 | Xception | CLIP (ViT-L/14) |
+|---|---|---|---|
+| Test Accuracy | 96.60% | 94.45% | 88.36% |
+| AUC | — | 0.9951 | 0.9544 |
+| Precision (Fake) | 0.9550 | — | 0.9000 |
+| Recall (Fake) | 0.9780 | — | 0.8600 |
+| F1-Score | 0.9664 | — | 0.8809 |
 
-Framework:
-
-- PyTorch
-
-Input Size:
-
-```
-380 × 380
-```
-
-Normalization:
-
-```
-Mean:
-[0.485, 0.456, 0.406]
-
-Std:
-[0.229, 0.224, 0.225]
-```
-
-Prediction:
-
-The model outputs probabilities for two classes:
-
-- Real
-- Fake
-
-Softmax is applied to obtain prediction confidence.
-
----
-
-# 📦 Backend Dependencies
-
-```
-fastapi
-uvicorn[standard]
-python-multipart
-pillow
-torch
-torchvision
-timm
-```
-
-Install with
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-# 🚀 Running the Complete Project
-
-### Terminal 1
-
-```bash
-cd backend
-
-uvicorn main:app --reload
-```
-
-### Terminal 2
-
-```bash
-cd frontend
-
-npm install
-npm run dev
-```
-
-Open
-
-```
-http://localhost:5173
-```
-
-Upload an image and receive the prediction from the FastAPI backend.
-
----
-
-# 🔍 Workflow
-
-```
-User uploads image
-        │
-        ▼
-React Frontend
-        │
-POST /predict
-        │
-        ▼
-FastAPI Backend
-        │
-Image Preprocessing
-        │
-EfficientNet-B4 Model
-        │
-Prediction
-        │
-Confidence Score
-        │
-        ▼
-Frontend Displays Result
-```
-
----
-
-# 📷 Screenshots
-
-You can add screenshots of:
-
-- Home Page
-- Image Upload
-- Prediction Result
-- FastAPI Swagger Documentation
-
----
-
-# 🔮 Future Enhancements
-
-- Video deepfake detection
-- Batch image prediction
-- Heatmap visualization (Grad-CAM)
-- User authentication
-- Prediction history
-- Cloud deployment
-- Mobile-responsive UI improvements
-- Support for multiple deepfake models
-
----
-
-# 👥 Contributors
-
-- **Prabrisha Sarkar**
-- **MD Shahid**
-- **Sreejata**
-
----
-
-# 📄 License
-
-This project is developed for educational and academic purposes.
-
-Feel free to modify and extend it for research and learning.
-
----
-
-# 🙏 Acknowledgements
-
-- PyTorch
-- FastAPI
-- React
-- Vite
-- EfficientNet
-- timm
+**EfficientNet-B4** was selected as the production model for its balanced accuracy/precision at the standard 0.5 decision threshold and a safer forensic error bias (138 false positives vs. 66 false negatives — missing an actual deepfake is costlier than a false alarm).
