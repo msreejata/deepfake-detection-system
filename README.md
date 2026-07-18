@@ -1,6 +1,6 @@
 # 🛡️ Deepfake Detection System
 
-A face-swap deepfake detection system built as a B.Tech final year project (Computer Science & Business Systems, Netaji Subhash Engineering College, MAKAUT). The system benchmarks three deep learning architectures on a custom 19,990-image dataset derived from DF40 and FaceForensics++, and deploys the best-performing model (EfficientNet-B4) as a live web application.
+A face-swap deepfake detection system built as a B.Tech final year project that benchmarks three deep learning architectures on a custom 19,990-image dataset derived from DF40 and FaceForensics++, and deploys the best-performing model (EfficientNet-B4) as a live web application.
 
 **Live App:** https://deepfake-detection-system-peach.vercel.app/
 
